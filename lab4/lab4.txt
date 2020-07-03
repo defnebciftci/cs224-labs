@@ -1,0 +1,9 @@
+top:
+	#jump to mips
+	#jump to imem
+	#jump to dmem
+	#li $v0, 10
+	#syscall
+mips:
+imem:
+dmem:
