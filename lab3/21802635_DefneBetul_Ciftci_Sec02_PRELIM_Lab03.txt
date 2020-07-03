@@ -1,0 +1,102 @@
+#Defne Betül Çiftci
+#Solution to part 2 and 3 of the prelim
+
+.data
+num1: .word 0
+num2: .word 0
+numForSum: .word 0
+multiplicationResult: .word 0
+summationResult: .word 0
+resultMsg1: .asciiz "\nThe result of recursive multiplication is: "
+resultMsg2: .asciiz "\nThe result of recursive summation is: "
+inputMsgMultipl1: .asciiz "Enter the first number for multiplication: "
+inputMsgMultipl2: .asciiz "Enter the second number for multiplication: "
+inputMsgSum: .asciiz "Enter the number you want to recursively add: "
+
+.text
+main:
+	li $v0, 4
+	la $a0, inputMsgMultipl1
+	syscall
+	li $v0, 5
+	syscall #first input
+	sw $v0, num1 #number is stored inside num1
+	
+	li $v0, 4
+	la $a0, inputMsgMultipl2
+	syscall
+	li $v0, 5
+	syscall #second input
+	sw $v0, num2
+	
+	lw $a0, num1
+	lw $a1, num2
+	
+	jal recursiveMultiplication
+	sw $v0, multiplicationResult #now the result is inside this static variable
+	
+	li $v0, 4
+	la $a0, inputMsgSum
+	syscall
+	li $v0, 5
+	syscall
+	sw $v0, numForSum
+	lw $a0, numForSum
+	jal recursiveSummation
+	sw $v0, summationResult
+	
+	#print everything
+	li $v0, 4
+	la $a0, resultMsg1
+	syscall
+	li $v0, 1
+	lw $a0, multiplicationResult
+	syscall
+	li $v0, 4
+	la $a0, resultMsg2
+	syscall
+	li $v0, 1
+	lw $a0, summationResult
+	syscall
+	
+	li $v0, 10
+	syscall
+recursiveMultiplication:
+	subu $sp, $sp, 8
+	sw $ra, ($sp)
+	sw $s0, 4($sp)
+	
+	li $v0, 0
+	beq $a0, 0, multipleDone
+	
+	move $s0, $a0
+	subu $a0, $a0, 1
+	jal recursiveMultiplication
+	
+	add $v0, $v0, $a1
+	
+	multipleDone:
+		lw $ra,  ($sp)
+		lw $s0, 4($sp)
+		addi $sp, $sp, 8
+		jr $ra
+	
+recursiveSummation:
+	subu $sp, $sp, 8
+	sw   $ra, ($sp)
+	sw   $s0, 4($sp)
+	
+	li   $v0, 0
+	beq  $a0, 0, sumDone
+	move $s0, $a0
+	subi $a0, $a0, 1
+	
+	jal  recursiveSummation
+	
+	add  $v0, $s0, $v0
+	
+	sumDone:
+		lw  $ra,  ($sp)
+		lw  $s0, 4($sp)
+		addi $sp, $sp, 8
+		jr   $ra
