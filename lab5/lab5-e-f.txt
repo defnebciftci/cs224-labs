@@ -1,0 +1,65 @@
+1-e
+programfullyworking:
+addi $t2, $t2, 7   - t2 is 111
+addi $t3, $t3, 10  - t3 is 1010
+sw $s1, 100($s1)  - loads s1(which is 0) onto address 100
+sll $0, $0, 0 - as a nop instruction
+sll $0, $0, 0 
+sll $0, $0, 0 
+sll $0, $0, 0 
+addi $s1, $s1, 100 - s1 is equal to 100
+add $t1, $t2, $t3 - t1 is 10001          
+or  $s0, $t2, $t3 - s0 is 1111
+
+program_compute_use_hazard:
+add $s1, $0, $0
+addi $t2, $0, 7   - so t2 is 111    
+addi $t3, $0, 10  - so t3 is 1010     
+add $t1, $t2, $t3 - compute use hazard with register t2 and t3
+sw $s1, 100($s1)
+or  $s0, $t1, $t2 - there is a compute-use hazard with register t1
+
+program_load_use_hazard:
+lw $t1, 20($t2)
+and $t7, $t1, $t8
+
+program_branch_hazard:
+sll $0, $0, 0 
+add $s1, $0, $0
+addi $t2, $0, 7   so t2 is 111
+addi $t3, $0, 10  so t3 is 1010
+beq $s1, $0, here
+lw $a0, 0($t2)
+sll $0, $0, 0 
+addi $a0, $0, 10
+here: addi $a0, $0, 20 - this should not cause an issue as the previous instruction is flushed
+or $a1, $a0, $0
+
+0x214A0007	//addi $t2, $t2, 7
+0x216B000A	//addi $t3, $t3, 10
+0xAE310064 	//sw   $s1, 100($s1)  
+0x00000000	//sll  $0, $0, 0 
+0x00000000	//sll  $0, $0, 0 
+0x00000000	//sll  $0, $0, 0 
+0x00000000	//sll  $0, $0, 0 
+0x22310064	//addi $s1, $s1, 100 
+0x014B4820	//add  $t1, $t2, $t3 
+0x014B8025	//or   $s0, $t2, $t3 
+0x00008800	//add $s1, $0, $0
+0x200A0007	//addi $t2, $0, 7   
+0x200b000A	//addi $t3, $0, 10  
+0x014B4820	//add $t1, $t2, $t3 
+0xAE310064	//sw $s1, 100($s1)
+0x012A8025	//or  $s0, $t1, $t2 
+0x8D490014	//lw $t1, 20($t2)
+0x01387824	//and $t7, $t1, $t8
+0x00000000	//sll $0, $0, 0 
+0x00008800	//add $s1, $0, $0
+0x200A0064	//addi $t2, $0, 100
+0x200b000A	//addi $t3, $0, 10
+0x1220000C	//beq $s1, $0, 3
+0x8D440000	//lw $a0, 0($t2)
+0x00000000	//sll $0, $0, 0 
+0x2004000A	//addi $a0, $0, 10
+0x20040014	//addi $a0, $0, 20
+0x00802825	//or $a1, $a0, $0
