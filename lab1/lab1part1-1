@@ -1,0 +1,61 @@
+.text
+getTheSize:
+	#first ask the user size and then get the size
+	li $t2, 0
+	# la $t0, array
+	li $v0, 4
+	la $a0, getSize
+	syscall
+	
+	li $v0, 5
+	syscall
+	move $s0, $v0
+	#check for everything and jump accordingly
+	bgt $s0, 20, ifGreaterThan
+	beq $s0, 20, main
+	blt $s0, 20, main
+	jr $ra
+	
+	li $v0, 10
+	syscall
+ifGreaterThan:
+	li $v0, 4
+	la $a0, enterSize
+	syscall
+	jal getTheSize
+main:
+	beq $t2, 0, print #t0 is to control the jump between these two
+	li $v0, 5
+	syscall
+	
+	move $s1, $v0
+	sb $s1, array($t0)
+	add $t3, $t3, $s1 #add each number
+	addi $t2, $t2, 4
+	
+	addi $s0, $s0, -1 #decrement the size
+	bne  $s0, 0, main #if size is not zero, run a loop. when the loop ends, it should
+			  #go back to the "jal main" command in print
+	jr $ra
+print:
+	addi $t2, $t2, 1
+	li $v0, 4
+	la $a0, arrayInit
+	syscall
+	jal main
+	li $v0, 4
+	la $a0, arrayEnd
+	syscall
+	li $v0, 4
+	la $a0, summation
+	syscall
+	li $v0, 1
+	move $a0, $t3
+	syscall
+.data
+getSize:  .asciiz "Please enter the size you want : "
+array:    .space 80
+enterSize: .asciiz "Enter the size you want again\n"
+arrayInit: .asciiz "array: [ "
+arrayEnd: .asciiz "]\n"
+summation: .asciiz "Summation: "
